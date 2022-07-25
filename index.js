@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import FeedbackSchema from "./Models/Feedback.js";
+import StatsSchema from "./Models/Stats.js";
 
 const app = express();
 
@@ -9,13 +10,6 @@ mongoose.connect("mongodb://localhost:27017/").then(() => console.log("connected
 
 app.use(express.json())
 app.use(cors())
-
-
-app.post("/hello", async (req, res) => {
-    res.status(200).json({
-        message: "Hi du de"
-    })
-})
 
 app.post("/api/addFeedback", async (req, res) => {
     try {
@@ -25,6 +19,19 @@ app.post("/api/addFeedback", async (req, res) => {
         })
         const post = await doc.save();
         res.json(post)
+        StatsSchema.findOneAndUpdate({
+                name: "Отзывы"
+            },
+            {
+                $inc: {count: 1}
+            },
+            (err, doc) => {
+                if (err) {
+                    console.log("Не получилось обновить количество отзывов")
+                }
+                console.log("Успешно обновили")
+            }
+        )
     } catch (error) {
         console.log(error)
         res.status(500).json({
@@ -33,11 +40,44 @@ app.post("/api/addFeedback", async (req, res) => {
     }
 })
 
-app.get("/api/getFeedbacks", async (req,res) => {
+app.post("/api/addStat/" , async (req,res) => {
     try {
-
+        const doc = new StatsSchema({
+            name: req.body.name,
+            count: req.body.count
+        })
+        const post = await doc.save()
+        res.json(post)
     } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            message: "Не удалось добавить новый раздел статистики"
+        })
 
+    }
+})
+
+app.get("/api/getFeedbacks", async (req, res) => {
+    try {
+        const feedBacks = await FeedbackSchema.find().exec()
+        res.json(feedBacks)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            message: "Не удалось добавить отзыв"
+        })
+    }
+})
+
+app.get("/api/getStats", async(req,res) => {
+    try {
+       const stats = await StatsSchema.find().exec()
+       res.json(stats)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            message: "Не удалось получить статистику"
+        })
     }
 })
 
