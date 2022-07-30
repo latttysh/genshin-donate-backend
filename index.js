@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import FeedbackSchema from "./Models/Feedback.js";
 import StatsSchema from "./Models/Stats.js";
+import crypto from "crypto";
 
 const app = express();
 
@@ -79,6 +80,13 @@ app.get("/api/getStats", async(req,res) => {
             message: "Не удалось получить статистику"
         })
     }
+})
+
+app.get("/api/getBalance" , async(req,res) => {
+    const api = ""
+    let signature = crypto.createHmac("SHA256","81e81e9681e06f238e641554c15c9d9d").update("4|20586").digest("hex")
+    console.log(signature)
+
 })
 
 app.listen(4444, (err) => {
