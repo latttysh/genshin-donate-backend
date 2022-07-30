@@ -4,6 +4,7 @@ import cors from "cors";
 import FeedbackSchema from "./Models/Feedback.js";
 import StatsSchema from "./Models/Stats.js";
 import crypto from "crypto";
+import axios from "axios"
 
 const app = express();
 
@@ -83,10 +84,60 @@ app.get("/api/getStats", async(req,res) => {
 })
 
 app.get("/api/getBalance" , async(req,res) => {
-    const api = ""
+    let ip = req.connection.remoteAddress
+    console.log(ip)
+    const api = "81e81e9681e06f238e641554c15c9d9d"
     let signature = crypto.createHmac("SHA256","81e81e9681e06f238e641554c15c9d9d").update("4|20586").digest("hex")
     console.log(signature)
+})
 
+app.get("/api/createPayForm", async (req,res) => {
+    try {
+        let data = Object.entries(req.body)
+        let values = []
+        data.sort().map((item,i) =>{
+            values.push(item[1])
+        })
+        let str = values.join("|")
+        console.log(str)
+        let signature = crypto.createHmac("SHA256", "81e81e9681e06f238e641554c15c9d9d").update(str).digest("hex")
+        axios.post("https://api.freekassa.ru/v1/orders/create",
+            {
+                shopId: req.body.shopId,
+                nonce: req.body.nonce,
+                i: req.body.i,
+                email: req.body.email,
+                ip: req.body.ip,
+                currency: req.body.currency,
+                amount: req.body.amount,
+                signature: signature
+            }).then(answer => {
+                res.status(200).json(answer.data)
+        }).catch(error => {
+            console.log(error)
+            res.status(500).json({
+                message: "Произошла ошибка при создании формы оплаты"
+            })
+        })
+    } catch (error){
+        console.log(error)
+        res.status(500).json({
+            message: "Произошла ошибка при создании формы оплаты"
+        })
+    }
+})
+
+app.get("/api/paydone", async (req,res) => {
+    try {
+        console.log(req.body)
+        res.status(200).json({
+            message: "Данные об оплате успешно получены"
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: "Не получилось получить данные об оплате"
+        })
+    }
 })
 
 app.listen(4444, (err) => {
