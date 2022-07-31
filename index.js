@@ -91,7 +91,7 @@ app.get("/api/getBalance" , async(req,res) => {
     console.log(signature)
 })
 
-app.get("/api/createPayForm", async (req,res) => {
+app.post("/api/createPayForm", async (req,res) => {
     try {
         console.log(req.body)
         let signature = crypto.createHash("MD5").update(`20586:${req.body.price}:D34QLz}pnz9=mR3:RUB:${req.body.name}`).digest("hex")
@@ -142,7 +142,7 @@ app.get("/api/createPayForm", async (req,res) => {
 
 app.get("/api/paydone", async (req,res) => {
     try {
-        console.log(req.body)
+        console.log(req.query)
         res.status(200).json({
             message: "Данные об оплате успешно получены"
         })
