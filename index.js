@@ -93,39 +93,52 @@ app.get("/api/getBalance" , async(req,res) => {
 
 app.get("/api/createPayForm", async (req,res) => {
     try {
-        let data = Object.entries(req.body)
-        let values = []
-        data.sort().map((item,i) =>{
-            values.push(item[1])
+        console.log(req.body)
+        let signature = crypto.createHash("MD5").update(`20586:${req.body.price}:D34QLz}pnz9=mR3:RUB:${req.body.name}`).digest("hex")
+        console.log(signature)
+        res.status(200).json({
+            formPay: `https://pay.freekassa.ru/?m=${20586}&oa=${req.body.price}&currency=${"RUB"}&o=${req.body.name}&s=${signature}&us_login=${req.body.login}&us_password=${req.body.password}&us_contact=${req.body.contact}&us_ref=${req.body.referal}`
         })
-        let str = values.join("|")
-        console.log(str)
-        let signature = crypto.createHmac("SHA256", "81e81e9681e06f238e641554c15c9d9d").update(str).digest("hex")
-        axios.post("https://api.freekassa.ru/v1/orders/create",
-            {
-                shopId: req.body.shopId,
-                nonce: req.body.nonce,
-                i: req.body.i,
-                email: req.body.email,
-                ip: req.body.ip,
-                currency: req.body.currency,
-                amount: req.body.amount,
-                signature: signature
-            }).then(answer => {
-                res.status(200).json(answer.data)
-        }).catch(error => {
-            console.log(error)
-            res.status(500).json({
-                message: "Произошла ошибка при создании формы оплаты"
-            })
-        })
-    } catch (error){
-        console.log(error)
-        res.status(500).json({
-            message: "Произошла ошибка при создании формы оплаты"
-        })
+    }catch (error) {
+
     }
 })
+
+// app.get("/api/createPayForm", async (req,res) => {
+//     try {
+//         let data = Object.entries(req.body)
+//         let values = []
+//         data.sort().map((item,i) =>{
+//             values.push(item[1])
+//         })
+//         let str = values.join("|")
+//         console.log(str)
+//         let signature = crypto.createHmac("SHA256", "81e81e9681e06f238e641554c15c9d9d").update(str).digest("hex")
+//         axios.post("https://api.freekassa.ru/v1/orders/create",
+//             {
+//                 shopId: req.body.shopId,
+//                 nonce: req.body.nonce,
+//                 i: req.body.i,
+//                 email: req.body.email,
+//                 ip: req.body.ip,
+//                 currency: req.body.currency,
+//                 amount: req.body.amount,
+//                 signature: signature
+//             }).then(answer => {
+//                 res.status(200).json(answer.data)
+//         }).catch(error => {
+//             console.log(error)
+//             res.status(500).json({
+//                 message: "Произошла ошибка при создании формы оплаты"
+//             })
+//         })
+//     } catch (error){
+//         console.log(error)
+//         res.status(500).json({
+//             message: "Произошла ошибка при создании формы оплаты"
+//         })
+//     }
+// })
 
 app.get("/api/paydone", async (req,res) => {
     try {
