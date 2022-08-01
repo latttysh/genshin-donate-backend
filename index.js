@@ -8,7 +8,7 @@ import axios from "axios"
 
 const app = express();
 
-mongoose.connect("mongodb://localhost:27017/").then(() => console.log("connected")).catch(() => console.log("Error"))
+mongoose.connect('mongodb+srv://admin:admin@cluster0.8tvjeha.mongodb.net/?retryWrites=true&w=majority').then(() => console.log("connected")).catch(() => console.log("Error"))
 
 app.use(express.json())
 app.use(cors())
@@ -146,6 +146,20 @@ app.get("/api/paydone", async (req,res) => {
         res.status(200).json({
             message: "Данные об оплате успешно получены"
         })
+        StatsSchema.findOneAndUpdate({
+                name: "Покупки"
+            },
+            {
+                $inc: {count: 1}
+            },
+            (err, doc) => {
+                if (err) {
+                    console.log("Не получилось обновить количество покупок")
+                }
+                console.log("Успешно обновили")
+            }
+        )
+
     } catch (error) {
         res.status(500).json({
             message: "Не получилось получить данные об оплате"
