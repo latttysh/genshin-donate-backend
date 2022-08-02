@@ -74,6 +74,19 @@ app.get("/api/getFeedbacks", async (req, res) => {
 app.get("/api/getStats", async(req,res) => {
     try {
        const stats = await StatsSchema.find().exec()
+        StatsSchema.findOneAndUpdate({
+                name: "Посещений"
+            },
+            {
+                $inc: {count: 1}
+            },
+            (err, doc) => {
+                if (err) {
+                    console.log("Не получилось обновить количество купленных кристаллов")
+                }
+                console.log("Успешно обновили")
+            }
+        )
        res.json(stats)
     } catch (error) {
         console.log(error)
@@ -97,7 +110,7 @@ app.post("/api/createPayForm", async (req,res) => {
         let signature = crypto.createHash("MD5").update(`20586:${req.body.price}:D34QLz}pnz9=mR3:RUB:${req.body.name}`).digest("hex")
         console.log(signature)
         res.status(200).json({
-            formPay: `https://pay.freekassa.ru/?m=${20586}&oa=${req.body.price}&currency=${"RUB"}&o=${req.body.name}&s=${signature}&us_login=${req.body.login}&us_password=${req.body.password}&us_contact=${req.body.contact}&us_ref=${req.body.referal}&us_price=${req.body.price}$us_count=${req.body.count}`
+            formPay: `https://pay.freekassa.ru/?m=${20586}&oa=${req.body.price}&currency=${"RUB"}&o=${req.body.name}&s=${signature}&us_login=${req.body.login}&us_password=${req.body.password}&us_contact=${req.body.contact}&us_ref=${req.body.referal}&us_price=${req.body.price}&us_count=${req.body.count}`
         })
     }catch (error) {
 
@@ -163,7 +176,7 @@ app.get("/api/paydone", async (req,res) => {
                 name: "Кристаллов купили"
             },
             {
-                $inc: {count: req.query.us_count}
+                $inc: {count: parseInt(req.query.us_count,10)}
             },
             (err, doc) => {
                 if (err) {
@@ -176,7 +189,7 @@ app.get("/api/paydone", async (req,res) => {
                 name: "Денежный оборот"
             },
             {
-                $inc: {count: req.query.us_price}
+                $inc: {count: parseInt(req.query.us_price,10)}
             },
             (err, doc) => {
                 if (err) {
