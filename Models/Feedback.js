@@ -5,6 +5,10 @@ const FeedbackSchema = new mongoose.Schema({
         type: "string",
         required: true,
     },
+    reaction: {
+        type: "number",
+        required: true
+    },
     text: {
         type: "string",
         required: true

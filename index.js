@@ -6,9 +6,20 @@ import StatsSchema from "./Models/Stats.js";
 import crypto from "crypto";
 import axios from "axios"
 
+const require = createRequire(import.meta.url);
 const app = express();
+import { createRequire } from 'module';
 
+
+const https = require('https');
+const fs = require('fs');
 mongoose.connect('mongodb+srv://admin:admin@cluster0.8tvjeha.mongodb.net/?retryWrites=true&w=majority').then(() => console.log("connected")).catch(() => console.log("Error"))
+
+
+const httpsServer = https.createServer({
+    key: fs.readFileSync('./privkey.pem'),
+    cert: fs.readFileSync('./cert.pem'),
+}, app);
 
 app.use(express.json())
 app.use(cors())
@@ -17,7 +28,8 @@ app.post("/api/addFeedback", async (req, res) => {
     try {
         const doc = new FeedbackSchema({
             name: req.body.name,
-            text: req.body.text
+            text: req.body.text,
+            reaction: req.body.reaction
         })
         const post = await doc.save();
         res.json(post)
@@ -61,7 +73,8 @@ app.post("/api/addStat/" , async (req,res) => {
 
 app.get("/api/getFeedbacks", async (req, res) => {
     try {
-        const feedBacks = await FeedbackSchema.find().exec()
+        const feedBacks = (await FeedbackSchema.find().exec()).reverse()
+
         res.json(feedBacks)
     } catch (error) {
         console.log(error)
@@ -118,9 +131,6 @@ app.post("/api/createPayForm", async (req,res) => {
 app.get("/api/paydone", async (req,res) => {
     try {
         console.log(req.query)
-        return res.status(200).json({
-            message: "Данные об оплате успешно получены"
-        })
         StatsSchema.findOneAndUpdate({
                 name: "Покупки"
             },
@@ -160,9 +170,20 @@ app.get("/api/paydone", async (req,res) => {
                 console.log("Успешно обновили")
             }
         )
-        let message = `Новая успешная оплата%0AЛогин: ${req.query.us_login}%0AПароль: ${req.query.us_password}%0AДля связи: ${req.query.us_contact}%0AРеферал: ${req.query.us_referal}`
-        axios.post(`https://api.telegram.org/bot2061278459:AAHUbcu_npM2WdlcJcUFtMM6FDa69o1T65g/sendMessage?chat_id=-521043965&text=Hello&parse_mode=html`)
+        let message = `❤️‍🔥 Оплачен новый заказ! 
+            Наименование: ${req.query.MERCHANT_ORDER_ID}\n
+            💸 Денюшек: ${req.query.AMOUNT}p. | Комиссия: ${req.query.commission}р.
 
+            🧛‍♀️ Login: ${req.query.us_login}
+            🔑 Password: ${req.query.us_password}
+            📲 Связь: ${req.query.us_contact}
+
+            👨‍👦 Пригласивший: ${req.query.us_ref}`
+        console.log("SENDING")
+        axios.post(`https://api.telegram.org/bot2061278459:AAHUbcu_npM2WdlcJcUFtMM6FDa69o1T65g/sendMessage`,{chat_id = "521043965", text = message}).then(res => console.log(res))
+        return res.status(200).json({
+            message: "Данные об оплате успешно получены"
+        })
     } catch (error) {
         console.log()
         return res.status(500).json({
@@ -171,10 +192,7 @@ app.get("/api/paydone", async (req,res) => {
     }
 })
 
-app.listen(4444, (err) => {
-    if (err) {
-        return console.log("Error", err)
-    } else {
-        return console.log("We started")
-    }
-})
+
+httpsServer.listen(4444, () => {
+    console.log('HTTPS Server running on port 4444');
+});
