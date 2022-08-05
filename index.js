@@ -144,6 +144,7 @@ app.get("/api/paydone", async (req,res) => {
                 console.log("Успешно обновили")
             }
         )
+	if (!req.query.MERCHANT_ORDER_ID.includes("луны")){
         StatsSchema.findOneAndUpdate({
                 name: "Кристаллов купили"
             },
@@ -156,12 +157,26 @@ app.get("/api/paydone", async (req,res) => {
                 }
                 console.log("Успешно обновили")
             }
-        )
+        )} else {
+
+	StatsSchema.findOneAndUpdate({
+                name: "Лун купили"
+            },
+            {
+                $inc: {count: 1}
+            },
+            (err, doc) => {
+                if (err) {
+                    console.log("Не получилось обновить количество купленных кристаллов")
+                }
+                console.log("Успешно обновили")
+            }
+        )}
         StatsSchema.findOneAndUpdate({
                 name: "Денежный оборот"
             },
             {
-                $inc: {count: parseInt(req.query.us_price.replace,10)}
+                $inc: {count: parseInt(req.query.us_price.replace(" ",""),10)}
             },
             (err, doc) => {
                 if (err) {
@@ -180,7 +195,7 @@ app.get("/api/paydone", async (req,res) => {
 
             👨‍👦 Пригласивший: ${req.query.us_ref}`
         console.log("SENDING")
-        axios.post(`https://api.telegram.org/bot2061278459:AAHUbcu_npM2WdlcJcUFtMM6FDa69o1T65g/sendMessage`,{chat_id = "521043965", text = message}).then(res => console.log(res))
+        axios.post(`https://api.telegram.org/bot2061278459:AAHUbcu_npM2WdlcJcUFtMM6FDa69o1T65g/sendMessage`,{chat_id: "-521043965", text:message}).then(res => console.log(res.data)).catch(err => console.log(err))
         return res.status(200).json({
             message: "Данные об оплате успешно получены"
         })
