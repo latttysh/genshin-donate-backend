@@ -9,11 +9,13 @@ import UserModel from "./Models/User.js"
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
+
 const require = createRequire(import.meta.url);
 const app = express();
 import {createRequire} from 'module';
 
 
+var CryptoJS = require("crypto-js");
 const https = require('https');
 const nodemailer = require('nodemailer');
 const fs = require('fs');
@@ -229,13 +231,17 @@ app.get("/api/paydone", async (req, res) => {
 
 app.post("/api/sendcode", async(req,res) => {
     const email = req.body.email
+    const crypt = req.body.code
+    const bytes = CryptoJS.AES.decrypt(crypt.toString(), "code")
+    const code = bytes.toString(CryptoJS.enc.Utf8)
+    console.log("Code = ", code)
     const mailData={
         from: "genshindonat.com@yandex.ru",
         to: email,
         subject: "Регистрация аккаунта",
         text: "Вы получили это письмо при регистрации аккаунта",
         html: "<b>Ваш код для регистрации</b> <br>"+
-                "<b>123123</b>"
+                `<b>${code}</b>`
 
     }
     await transporter.sendMail(mailData, (error, info)=>{
