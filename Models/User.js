@@ -13,6 +13,10 @@ const UserSchema = new mongoose.Schema(
         passwordHash: {
             type: String,
             required: true
+        },
+        purchases: {
+            type: Number,
+            required: true
         }
     }, {
         timestamps: true
