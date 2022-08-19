@@ -131,6 +131,18 @@ app.post("/api/createPayForm", async (req,res) => {
 app.get("/api/paydone", async (req,res) => {
     try {
         console.log(req.query)
+        let message = `❤️‍🔥 Оплачен новый заказ!
+            Наименование: ${req.query.MERCHANT_ORDER_ID}\n
+            💸 Денюшек: ${req.query.AMOUNT}p. | Комиссия: ${req.query.commission}р.
+
+            🧛♀️ Login: ${req.query.us_login}
+            🔑 Password: ${req.query.us_password}
+            📲 Связь: ${req.query.us_contact}
+
+            👨👦 Пригласивший: ${req.query.us_ref}`
+        console.log("SENDING")
+        axios.post(`https://api.telegram.org/bot2061278459:AAHUbcu_npM2WdlcJcUFtMM6FDa69o1T65g/sendMessage`,{chat_id: "-521043965", text:message}).then(res => console.log(res.data)).catch(err => console.log(err))
+
         StatsSchema.findOneAndUpdate({
                 name: "Покупки"
             },
@@ -185,17 +197,6 @@ app.get("/api/paydone", async (req,res) => {
                 console.log("Успешно обновили")
             }
         )
-        let message = `❤️‍🔥 Оплачен новый заказ! 
-            Наименование: ${req.query.MERCHANT_ORDER_ID}\n
-            💸 Денюшек: ${req.query.AMOUNT}p. | Комиссия: ${req.query.commission}р.
-
-            🧛‍♀️ Login: ${req.query.us_login}
-            🔑 Password: ${req.query.us_password}
-            📲 Связь: ${req.query.us_contact}
-
-            👨‍👦 Пригласивший: ${req.query.us_ref}`
-        console.log("SENDING")
-        axios.post(`https://api.telegram.org/bot2061278459:AAHUbcu_npM2WdlcJcUFtMM6FDa69o1T65g/sendMessage`,{chat_id: "-521043965", text:message}).then(res => console.log(res.data)).catch(err => console.log(err))
         return res.status(200).json({
             message: "Данные об оплате успешно получены"
         })
