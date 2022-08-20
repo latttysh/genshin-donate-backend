@@ -156,8 +156,8 @@ app.post("/api/auth/tgauth", async(req,res) => {
         if (!user) {
             console.log("Проводим регистрацию")
             const id=req.body.id
-            const nickname = req.body.first_name
-            const password = req.body.id + req.body.first_name
+            const nickname = req.body.username
+            const password = `${id}+${nickname}`
             const passwordHash = await bcrypt.hash(password,10)
             const doc = new UserModel({
                 nickname: nickname,
