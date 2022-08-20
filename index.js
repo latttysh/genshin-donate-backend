@@ -197,6 +197,7 @@ app.post("/api/auth/tgauth", async(req,res) => {
         );
         return res.json({...user._doc, token})
     } catch (error) {
+        console.log(error)
         res.status(500).json("Не удалось авторизоваться")
     }
 })
