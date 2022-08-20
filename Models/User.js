@@ -8,7 +8,7 @@ const UserSchema = new mongoose.Schema(
         },
         email: {
             type: String,
-            required: true,
+            required: false,
         },
         passwordHash: {
             type: String,
@@ -17,6 +17,10 @@ const UserSchema = new mongoose.Schema(
         purchases: {
             type: Number,
             required: true
+        },
+        tgId: {
+            type: String,
+            required: false
         }
     }, {
         timestamps: true

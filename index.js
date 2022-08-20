@@ -16,6 +16,7 @@ const app = express();
 import {createRequire} from 'module';
 import Purchase from "./Models/Purchase.js";
 import UserSchema from "./Models/User.js";
+import User from "./Models/User.js";
 
 
 var CryptoJS = require("crypto-js");
@@ -144,6 +145,59 @@ app.post("/api/createPayForm", async (req, res) => {
         })
     } catch (error) {
 
+    }
+})
+
+
+
+app.post("/api/auth/tgauth", async(req,res) => {
+    try {
+        const user = await UserModel.findOne({"tgId": req.body.id})
+        if (!user) {
+            console.log("Проводим регистрацию")
+            const id=req.body.id
+            const nickname = req.body.nickname
+            const password = req.body.id + req.body.nickname
+            const passwordHash = await bcrypt.hash(password,10)
+            const doc = new UserModel({
+                nickname: nickname,
+                email: "",
+                passwordHash,
+                purchases: 0,
+                tgId: id,
+            })
+            const user = await doc.save()
+            const token = jwt.sign(
+                {
+                    _id: user._id
+                },
+                "gEnShIn",
+                {
+                    expiresIn: "30d"
+                },
+            );
+            return res.json({...user._doc, token})
+        }
+        console.log("Проводим авторизацию")
+        const isValidPass = await bcrypt.compare(req.body.id + req.body.nickname, user._doc.passwordHash)
+        if (!isValidPass) {
+            return res.status(404).json({
+                    message: "Пароль не верный"
+                }
+            )
+        }
+        const token = jwt.sign(
+            {
+                _id: user._id,
+            },
+            "gEnShIn",
+            {
+                expiresIn: "30d"
+            }
+        );
+        return res.json({...user._doc, token})
+    } catch (error) {
+        res.status(500).json("Не удалось авторизоваться")
     }
 })
 
