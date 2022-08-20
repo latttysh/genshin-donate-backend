@@ -179,7 +179,7 @@ app.post("/api/auth/tgauth", async(req,res) => {
             return res.json({...user._doc, token})
         }
         console.log("Проводим авторизацию")
-        const isValidPass = await bcrypt.compare(req.body.id + req.body.nickname, user._doc.passwordHash)
+        const isValidPass = await bcrypt.compare(`${req.body.id} + ${req.body.username}`, user._doc.passwordHash)
         if (!isValidPass) {
             return res.status(404).json({
                     message: "Пароль не верный"
